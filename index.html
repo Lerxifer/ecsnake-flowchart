@@ -9,32 +9,32 @@
 /* ===== Fonts ===== */
 @font-face {
   font-family: 'Bricolage';
-  src: url('./assets/fonts/BricolageGrotesque-Bold.ttf') format('truetype');
+  src: url('./_shared/fonts/BricolageGrotesque-Bold.ttf') format('truetype');
   font-weight: 700;
 }
 @font-face {
   font-family: 'Bricolage';
-  src: url('./assets/fonts/BricolageGrotesque-Regular.ttf') format('truetype');
+  src: url('./ shared/fonts/BricolageGrotesque-Regular.ttf') format('truetype');
   font-weight: 400;
 }
 @font-face {
   font-family: 'Instrument';
-  src: url('./assets/fonts/InstrumentSans-Regular.ttf') format('truetype');
+  src: url('./_shared/fonts/InstrumentSans-Regular.ttf') format('truetype');
   font-weight: 400;
 }
 @font-face {
   font-family: 'Instrument';
-  src: url('./assets/fonts/InstrumentSans-Bold.ttf') format('truetype');
+  src: url('./_shared/fonts/InstrumentSans-Bold.ttf') format('truetype');
   font-weight: 700;
 }
 @font-face {
   font-family: 'JetBrains';
-  src: url('./assets/fonts/JetBrainsMono-Regular.ttf') format('truetype');
+  src: url('./_shared/fonts/JetBrainsMono-Regular.ttf') format('truetype');
   font-weight: 400;
 }
 @font-face {
   font-family: 'JetBrains';
-  src: url('./assets/fonts/JetBrainsMono-Bold.ttf') format('truetype');
+  src: url('./_shared/fonts/JetBrainsMono-Bold.ttf') format('truetype');
   font-weight: 700;
 }
 
@@ -768,4 +768,111 @@ graph TD
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>信号</th><th>触发时机</th><th>连接目标</
+        <tr><th>信号</th><th>触发时机</th><th>连接目标</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>homing_started_signal</td><td>归零开始</td><td>_update_homing_started_ui()</td></tr>
+        <tr><td>homing_completed_signal(success, msg)</td><td>归零完成</td><td>_update_homing_ui()</td></tr>
+        <tr><td>set_zero_completed_signal(success, msg)</td><td>零位设置完成</td><td>_on_set_zero_completed()</td></tr>
+        <tr><td>current_updated_signal(list)</td><td>电流更新</td><td>窗口更新</td></tr>
+        <tr><td>homing_current_signal(dict)</td><td>归零电流更新</td><td>_update_homing_debug_display()</td></tr>
+        <tr><td>speed_params_changed(max_speed, interval)</td><td>速度参数变更</td><td>控制器更新</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== Section 10: 数据流图 ===== -->
+<section class="section" id="s10">
+  <h2>十、数据流图</h2>
+  <p class="section-desc">系统数据流覆盖<mark class="key">硬件层 → 软件层 → UI 层</mark>的完整链路，包括摇杆控制、电缸通信、电流监控、摄像头视频和按钮输入五条主要数据通路。</p>
+
+  <figure class="diagram">
+    <figcaption>图 10-1：系统数据流全景图</figcaption>
+    <pre class="mermaid">
+flowchart LR
+    subgraph HW["硬件层"]
+        JOY["摇杆"]
+        ADC["ADC板"]
+        CYL["电缸"]
+        CAM["摄像头"]
+        BTN["按钮"]
+    end
+
+    subgraph SW["软件层"]
+        IR["InputReader\nADC读取"]
+        FP["FrameProtocol\n帧协议"]
+        JC["JoystickController\n摇杆控制器"]
+        CM["CurrentMonitor\n电流监控"]
+        CT["CameraThread\n摄像头线程"]
+        BR["ButtonReader\n按钮检测"]
+    end
+
+    subgraph UI["UI层"]
+        POS["位置显示"]
+        WARN["CurrentAlertDialog\n警告弹窗"]
+        D3["3D显示/状态显示"]
+        CAMVIEW["CameraViewWidget\n视频画面"]
+        MW["MainWindow\n拍照/录像"]
+    end
+
+    JOY --> ADC
+    ADC -->|"/dev/ttyUSB*"| IR
+    IR --> JC
+    JC -->|"摇杆指令"| FP
+    FP -->|"串口"| CYL
+
+    CYL -->|"电流反馈"| CM
+    CM -->|"警报"| WARN
+
+    CYL -->|"位置反馈"| MW
+    MW --> D3
+
+    CAM -->|"V4L2"| CT
+    CT -->|"GStreamer"| CAMVIEW
+
+    BTN --> ADC
+    ADC --> BR
+    BR --> MW
+
+    style HW fill:#2e1a1a,stroke:#f85149,color:#e6edf3
+    style SW fill:#1a2332,stroke:#58a6ff,color:#e6edf3
+    style UI fill:#1a2e1a,stroke:#3fb950,color:#e6edf3
+    </pre>
+  </figure>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <p>ECSnake 工业手持终端控制系统 · 软件流程图 · 技术文档</p>
+  <p style="margin-top:8px;">基于 Qt 框架 · Python 实现 · 跨平台支持 (Linux/Windows)</p>
+</footer>
+
+</div>
+
+<!-- ===== Mermaid ===== -->
+<script src="./_shared/js/mermaid.min.js"></script>
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'base',
+  securityLevel: 'loose',
+  flowchart: {
+    htmlLabels: true,
+    useMaxWidth: true,
+    curve: 'basis'
+  },
+  themeVariables: {
+    primaryColor: '#161b22',
+    primaryBorderColor: '#30363d',
+    primaryTextColor: '#e6edf3',
+    lineColor: '#58a6ff',
+    secondaryColor: '#1a2332',
+    tertiaryColor: '#1a2e1a',
+    fontSize: '14px',
+    fontFamily: '"Instrument", -apple-system, sans-serif'
+  }
+});
+</script>
+</body>
+</html>
