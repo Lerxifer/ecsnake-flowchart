@@ -852,25 +852,16 @@ flowchart LR
 
 <!-- ===== Mermaid ===== -->
 <script src="./_shared/js/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
 mermaid.initialize({
   startOnLoad: true,
-  theme: 'base',
+  theme: 'dark',
   securityLevel: 'loose',
   flowchart: {
     htmlLabels: true,
     useMaxWidth: true,
     curve: 'basis'
-  },
-  themeVariables: {
-    primaryColor: '#161b22',
-    primaryBorderColor: '#30363d',
-    primaryTextColor: '#e6edf3',
-    lineColor: '#58a6ff',
-    secondaryColor: '#1a2332',
-    tertiaryColor: '#1a2e1a',
-    fontSize: '14px',
-    fontFamily: '"Instrument", -apple-system, sans-serif'
   }
 });
 </script>
